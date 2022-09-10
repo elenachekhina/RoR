@@ -1,0 +1,1 @@
+arr = Array.new(19) {|x| 10 + x * 5}
