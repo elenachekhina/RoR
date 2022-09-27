@@ -30,6 +30,7 @@ class Route
     end
 
     private
+    # методы вынесены в приватные, так как используются только внутри объектов
     def is_first(station)
       station == start
     end

@@ -51,6 +51,7 @@ class Train < Entity
     end
 
     protected
+    # методы вынесены в protected, так как speed и station не хотим менять произвольно снаружи, а чтение route не указано в тз
     attr_writer :speed, :station
     attr_reader :route
 

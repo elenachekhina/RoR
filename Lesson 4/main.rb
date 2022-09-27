@@ -12,24 +12,10 @@ class Menu
     attr_reader :user_input
 
     def initialize
-        @user_stations = {
-            1 => {name: 'A', object: Station.new('A')},
-            2 => {name: 'B', object: Station.new('B')},
-            3 => {name: 'C', object: Station.new('C')},
-            4 => {name: 'D', object: Station.new('D')},
-            5 => {name: 'E', object: Station.new('E')},
-        }
-        @user_trains = {
-            1 => {name: '123', object: CargoTrain.new('123')}
-        }
-        @user_routes = {
-            1 => {name: '1', object: Route.new(user_stations[1][:object], user_stations[5][:object])}
-        }
+        @user_stations = {}
+        @user_trains = {}
+        @user_routes = {}
         @user_input = nil
-    end
-
-    def show_dict(dict)
-        puts dict.map {|key, option| "#{key} - #{option}"}
     end
 
     def start
@@ -43,9 +29,14 @@ class Menu
         end
     end
 
-    private
+    private 
+    # Все методы приватные, так как интерфейс для меню очень строгий - только начать
     attr_writer :user_input
     attr_reader :user_stations, :user_trains, :user_routes
+
+    def show_dict(dict)
+        puts dict.map {|key, option| "#{key} - #{option}"}
+    end
 
     def read_user_input(type=:string)
         self.user_input = gets.chomp.strip
@@ -75,21 +66,6 @@ class Menu
         
         @user_routes[(user_routes.keys.max||0) + 1] = {name: name, object: Route.new(start_station, finish_station)}
         
-    end
-
-    def list_user_stations
-        puts "Your stations:"
-        show_dict(user_stations.transform_values {|value| value[:name]})
-    end
-
-    def list_user_routes
-        puts "Your routes:"
-        show_dict(user_routes.transform_values {|value| value[:name]})
-    end
-
-    def list_user_trains
-        puts "Your trains:"
-        show_dict(user_trains.transform_values {|value| {value[:name] => value[:object].type}})
     end
 
     def choose_object(name, dict)
@@ -138,19 +114,10 @@ class Menu
         train.send TRAIN_ACTIONS[action], wagon
     end
 
-    def show_wagons
-        puts choose_object('train', user_trains).wagons
-    end
-
     def move_train
         train = choose_object('train', user_trains)
         direction = choose_option('direction', MOVES)
         train.send TRAIN_MOVES[direction]
-    end
-
-    def show_cur_station
-        train = choose_object('train', user_trains)
-        puts train.station.name
     end
 
     OPTIONS = {
@@ -163,11 +130,6 @@ class Menu
         7 => {name: 'Move train', func: :move_train},
         8 => {name: 'List of trains', func: :list_trains},
         9 => {name: 'List of stations', func: :list_stations},
-        10 => {name: 'List user stations', func: :list_user_stations},
-        11 => {name: 'List user routes', func: :list_user_routes},
-        12 => {name: 'List user trains', func: :list_user_trains},
-        13 => {name: 'Show wagons', func: :show_wagons},
-        14 => {name: 'Show cur station', func: :show_cur_station},
         0 => {name: 'Exit'}
     }
 
