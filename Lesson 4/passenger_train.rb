@@ -1,8 +1,7 @@
 class PassengerTrain < Train
+  protected
 
-    protected
-    def type!
-        :passenger
-    end
-
+  def type!
+    :passenger
+  end
 end

@@ -1,8 +1,7 @@
 class CargoTrain < Train
+  protected
 
-    protected
-    def type!
-        :cargo
-    end
-
+  def type!
+    :cargo
+  end
 end
