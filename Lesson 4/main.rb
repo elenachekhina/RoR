@@ -1,5 +1,3 @@
-require_relative 'entity'
-require_relative 'wagon'
 require_relative 'passenger_wagon'
 require_relative 'cargo_wagon'
 require_relative 'train'
@@ -24,7 +22,7 @@ class Menu
       puts 'Choose the option:'
       show_dict(OPTIONS.transform_values { |value| value[:name] })
       read_user_input(:option)
-      break if user_input == 0
+      break if user_input.zero?
 
       send OPTIONS[user_input][:func]
     end
@@ -111,7 +109,7 @@ class Menu
     train = choose_object('train', user_trains)
     action = choose_option('action', ACTIONS)
     wagon = WAGONS[choose_option('wagon', TYPES)].new
-
+    puts wagon.type
     train.send TRAIN_ACTIONS[action], wagon
   end
 

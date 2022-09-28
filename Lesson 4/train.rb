@@ -1,15 +1,15 @@
-class Train < Entity
-  attr_reader :speed, :wagons, :number, :station
+class Train
+  attr_reader :speed, :wagons, :number, :station, :type
 
   def initialize(number)
-    super(number)
+    @type = type!
     @number = number
     @wagons = []
     @speed = 0
   end
 
   def add_wagon(wagon)
-    wagons << wagon if wagon.type == type and speed.zero?
+    wagons << wagon if wagon.type == type && speed.zero?
   end
 
   def delete_wagon(*_args)
@@ -63,4 +63,6 @@ class Train < Entity
   def notify_station_departure
     station.send_train(self)
   end
+
+  def type!; end
 end

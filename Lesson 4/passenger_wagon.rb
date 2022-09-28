@@ -1,7 +1,7 @@
-class PassengerWagon < Wagon
-  protected
+class PassengerWagon
+  attr_reader :type
 
-  def type!
-    :passenger
+  def initialize
+    @type = :passenger
   end
 end

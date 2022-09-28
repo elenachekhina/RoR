@@ -1,7 +1,7 @@
-class CargoWagon < Wagon
-  protected
+class CargoWagon
+  attr_reader :type
 
-  def type!
-    :cargo
+  def initialize
+    @type = :cargo
   end
 end
