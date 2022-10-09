@@ -8,6 +8,7 @@ class Route
     @finish = finish
     validate_station! finish
     validate!
+    
     @stations_between = []
     register_instance
   end
