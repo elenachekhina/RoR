@@ -8,7 +8,7 @@ class Route
     @finish = finish
     validate_station! finish
     validate!
-    
+
     @stations_between = []
     register_instance
   end
@@ -27,25 +27,26 @@ class Route
   end
 
   def previous_station(station)
-    station = stations[stations.find_index(station) - 1] unless is_first(station)
+    station = stations[stations.find_index(station) - 1] unless first?(station)
     station
   end
 
   def next_station(station)
-    station = stations[stations.find_index(station) + 1] unless is_last(station)
+    station = stations[stations.find_index(station) + 1] unless last?(station)
     station
   end
 
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
+
   private
 
-  def validate_station! station
-    raise "It's not a station" if !station.kind_of? Station
+  def validate_station!(station)
+    raise "It's not a station" unless station.is_a? Station
   end
 
   def validate!
@@ -53,11 +54,11 @@ class Route
   end
 
   # методы вынесены в приватные, так как используются только внутри объектов
-  def is_first(station)
+  def first?(station)
     station == start
   end
 
-  def is_last(station)
+  def last?(station)
     station == finish
   end
 end

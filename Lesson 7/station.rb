@@ -31,17 +31,18 @@ class Station
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
   def block_method(&block)
-    trains.each {|train| block.call(train)}
+    trains.each { |train| block.call(train) }
   end
 
   private
-  NAME_FORMAT = /^([a-z]|[а-я]){3,15}([-\s]\d+)?$/i
+
+  NAME_FORMAT = /^([a-z]|[а-я]){3,15}([-\s]\d+)?$/i.freeze
   def validate!
-    raise "Name has invalid format" if name !~ NAME_FORMAT
+    raise 'Name has invalid format' if name !~ NAME_FORMAT
   end
 end

@@ -65,7 +65,7 @@ class Train
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
@@ -75,14 +75,13 @@ class Train
 
   protected
 
-  # методы вынесены в protected, так как speed и station не хотим менять произвольно снаружи, а чтение route не указано в тз
   attr_writer :speed, :station
   attr_reader :route
 
-  NUMBER_FORMAT = /^[a-z\d]{3}-?[a-z\d]{2}$/i
+  NUMBER_FORMAT = /^[a-z\d]{3}-?[a-z\d]{2}$/i.freeze
 
   def validate!
-    raise "Number has invalid format" if number !~ NUMBER_FORMAT
+    raise 'Number has invalid format' if number !~ NUMBER_FORMAT
   end
 
   def notify_station_arrival

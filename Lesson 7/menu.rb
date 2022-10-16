@@ -39,24 +39,27 @@ class Menu
     puts 'Enter name:'
     read_user_input
     @user_stations[(user_stations.keys.max || 0) + 1] = { name: user_input, object: Station.new(user_input) }
-  rescue
+  rescue StandardError
     retry
   end
 
-  def create_train
+  def user_train
     type = choose_option('type', TYPES)
-    attempt = 0
-    begin
-      puts 'Enter number:'
-      read_user_input
-      @user_trains[(user_trains.keys.max || 0) + 1] = { name: user_input, object: TRAINS[type].new(user_input) }
-      puts "Train #{user_trains[user_trains.keys.max]} was successfully created"
-    rescue Exception => e
-      puts e.inspect
-      attempt += 1
-      retry if attempt < 3
-      puts 'Try next time'
-    end
+    puts 'Enter number:'
+    read_user_input
+    TRAINS[type].new(user_input)
+  end
+
+  def create_train
+    attempt = (attempt || 0) + 1
+    train = user_train
+    @user_trains[(user_trains.keys.max || 0) + 1] = { name: train.number, object: train }
+    puts "Train #{user_trains[user_trains.keys.max]} was successfully created"
+  rescue StandardError => e
+    puts e.inspect
+    attempt += 1
+    retry if attempt <= 3
+    puts 'Try next time'
   end
 
   def create_route
@@ -68,18 +71,19 @@ class Menu
     finish_station = choose_object('last station', user_stations)
 
     @user_routes[(user_routes.keys.max || 0) + 1] = { name: name, object: Route.new(start_station, finish_station) }
-  rescue Exception => e
+  rescue StandardError => e
     puts e.inspect
   end
 
   def choose_object(name, dict)
     raise ChooseObjectError, "There are not any #{name}s in list" if dict.length.zero?
+
     puts "Choose the #{name}:"
     show_dict(dict.transform_values { |value| value[:name] })
     read_user_input(:option)
     dict[user_input][:object]
   rescue NoMethodError
-    retry if !dict.length.zero?
+    retry unless dict.length.zero?
   end
 
   def choose_option(name, dict)
@@ -87,8 +91,9 @@ class Menu
     show_dict(dict)
     read_user_input(:option)
     raise if dict[user_input].nil?
+
     dict[user_input]
-  rescue
+  rescue StandardError
     retry
   end
 
@@ -103,7 +108,7 @@ class Menu
 
   def list_stations
     route = choose_object('route', user_routes)
-    puts route.stations.map { |station| station.name }.join(', ')
+    puts route.stations.map(&:name).join(', ')
   rescue ChooseObjectError => e
     puts e.inspect
   end
@@ -124,18 +129,18 @@ class Menu
     puts e.inspect
   end
 
+  def create_wagon
+    type = choose_option('wagon', TYPES)
+    puts 'Enter place:'
+    read_user_input
+    place = user_input.to_f.modulo(1).positive? ? user_input.to_f : user_input.to_i
+    WAGONS[type].new(place)
+  end
+
   def add_del_wagon
     train = choose_object('train', user_trains)
     action = choose_option('action', ACTIONS)
-
-    if action == :add
-      type = choose_option('wagon', TYPES)
-      puts 'Enter place:'
-      read_user_input
-      place = user_input.to_f.modulo(1) > 0? user_input.to_f : user_input.to_i
-      wagon = WAGONS[type].new(place)
-    end
-
+    wagon = create_wagon if action == :add
     train.send TRAIN_ACTIONS[action], wagon
   rescue ChooseObjectError => e
     puts e.inspect
@@ -155,7 +160,6 @@ class Menu
     train.block_method do |wagon, index|
       puts "Num: #{index}, Type: #{wagon.type}, Free: #{wagon.free_place}, Taken: #{wagon.taken_place}"
     end
-
   end
 
   def show_trains
@@ -164,20 +168,23 @@ class Menu
     station.block_method do |train|
       puts "Num: #{train.number}, Type: #{train.type}, Wagons: #{train.wagons.length}"
     end
-
   end
 
-  def take_place
+  def choose_wagon
     train = choose_object('train', user_trains)
     puts 'Choose wagon:'
     train.block_method do |wagon, index|
       puts "Num: #{index}, Free: #{wagon.free_place}, Taken: #{wagon.taken_place}"
     end
     read_user_input(:option)
-    wagon = train.wagons[user_input]
+    train.wagons[user_input]
+  end
+
+  def take_place
+    wagon = choose_wagon
     num = 1
     if wagon.type == :cargo
-      puts "Enter required place:"
+      puts 'Enter required place:'
       read_user_input
       num = user_input.to_f
     end
@@ -199,49 +206,49 @@ class Menu
     7 => { name: 'Move train', func: :move_train },
     8 => { name: 'List of trains', func: :list_trains },
     9 => { name: 'List of stations', func: :list_stations },
-    10 => { name: 'Show wagons', func: :show_wagons},
-    11 => { name: 'Show trains', func: :show_trains},
-    12 => { name: 'Take place', func: :take_place},
+    10 => { name: 'Show wagons', func: :show_wagons },
+    11 => { name: 'Show trains', func: :show_trains },
+    12 => { name: 'Take place', func: :take_place },
     0 => { name: 'Exit' }
-  }
+  }.freeze
 
   TYPES = {
     1 => :cargo,
     2 => :passenger
-  }
+  }.freeze
 
   TRAINS = {
     cargo: CargoTrain,
     passenger: PassengerTrain
-  }
+  }.freeze
 
   WAGONS = {
     cargo: CargoWagon,
     passenger: PassengerWagon
-  }
+  }.freeze
 
   ACTIONS = {
     1 => :add,
     2 => :delete
-  }
+  }.freeze
 
   MOVES = {
     1 => :forward,
     2 => :back
-  }
+  }.freeze
 
   ROUTE_ACTIONS = {
     add: :add_station,
     delete: :delete_station
-  }
+  }.freeze
 
   TRAIN_ACTIONS = {
     add: :add_wagon,
     delete: :delete_wagon
-  }
+  }.freeze
 
   TRAIN_MOVES = {
     forward: :go_next_station,
     back: :go_previous_station
-  }
+  }.freeze
 end
